@@ -129,7 +129,7 @@ class MultiTFRecordDataset(torch.utils.data.IterableDataset):
         else:
             shard = None
         it = reader.multi_tfrecord_loader(
-            self.data_pattern, self.index_pattern, self.splits, self.description)
+            self.data_pattern, self.index_pattern, self.splits, self.description, shard)
         if self.shuffle_queue_size:
             it = iterator_utils.shuffle_iterator(it, self.shuffle_queue_size)
         if self.transform:
