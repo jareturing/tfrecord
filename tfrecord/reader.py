@@ -177,6 +177,7 @@ def multi_tfrecord_loader(data_pattern: str,
                           index_pattern: typing.Union[str, None],
                           splits: typing.Dict[str, float],
                           description: typing.Union[typing.List[str], typing.Dict[str, str], None] = None,
+                          shard: typing.Optional[typing.Tuple[int, int]] = None,
                           ) -> typing.Iterable[typing.Dict[str, np.ndarray]]:
     """Create an iterator by reading and merging multiple tfrecord datasets.
 
@@ -211,6 +212,7 @@ def multi_tfrecord_loader(data_pattern: str,
     loaders = [functools.partial(tfrecord_loader, data_path=data_pattern.format(split),
                                  index_path=index_pattern.format(split) \
                                      if index_pattern is not None else None,
-                                 description=description)
+                                 description=description，
+                                shard=shard)
                for split in splits.keys()]
     return iterator_utils.sample_iterators(loaders, list(splits.values()))
