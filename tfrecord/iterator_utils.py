@@ -14,7 +14,10 @@ def cycle(iterator_fn: typing.Callable) -> typing.Iterable[typing.Any]:
         for element in iterator_fn():
             yield element
 
-
+def self_cycle(iterator_fn: typing.Callable) -> typing.Iterable[typing.Any]:
+    """Create a iterator from an iterator generator."""
+    for element in iterator_fn():
+        yield element
 def sample_iterators(iterators: typing.List[typing.Iterator],
                      ratios: typing.List[int]) -> typing.Iterable[typing.Any]:
     """Retrieve info generated from the iterator(s) according to their
@@ -34,12 +37,30 @@ def sample_iterators(iterators: typing.List[typing.Iterator],
         Decoded bytes of features into its respective data types from
         an iterator (based off their sampling ratio).
     """
-    iterators = [cycle(iterator) for iterator in iterators]
-    ratios = np.array(ratios)
-    ratios = ratios / ratios.sum()
-    while True:
-        choice = np.random.choice(len(ratios), p=ratios)
-        yield next(iterators[choice])
+    #####################orignal code make iter never stop in multi tfrcord reader####################
+    #iterators = [cycle(iterator) for iterator in iterators]
+    #ratios = np.array(ratios)
+    #ratios = ratios / ratios.sum()
+    #while True:
+    #    choice = np.random.choice(len(ratios), p=ratios)
+    #    yield next(iterators[choice])
+    #######################################
+    run_status=True
+    iterators = [self_cycle(iterator) for iterator in iterators]
+    ratios_np = np.array(ratios)
+    ratios_np = ratios_np / ratios_np.sum()
+    while run_status:
+        try:
+            choice = np.random.choice(len(ratios_np), p=ratios_np)
+            yield next(iterators[choice])
+        except StopIteration:
+            iterators.pop(choice)
+            ratios.pop(choice)
+            ratios_np = np.array(ratios)
+            ratios_np = ratios_np / ratios_np.sum()
+        if len(iterators)==0:
+            run_status=False
+    raise StopIteration
 
 
 def shuffle_iterator(iterator: typing.Iterator,
