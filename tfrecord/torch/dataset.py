@@ -124,7 +124,10 @@ class MultiTFRecordDataset(torch.utils.data.IterableDataset):
     def __iter__(self):
         worker_info = torch.utils.data.get_worker_info()
         if worker_info is not None:
+            shard = worker_info.id, worker_info.num_workers
             np.random.seed(worker_info.seed % np.iinfo(np.uint32).max)
+        else:
+            shard = None
         it = reader.multi_tfrecord_loader(
             self.data_pattern, self.index_pattern, self.splits, self.description)
         if self.shuffle_queue_size:
