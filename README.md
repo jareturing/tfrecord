@@ -1,7 +1,7 @@
 # TFRecord reader
 
 ## Installation
-#pip3 install tfrecord
+# Please attention,
 we have rebuild MultiTFRecordDataset for DataLoader to make it works with multi process and stop in right way.
 To install my self build tfrecord, please download this project and use command python setup.py install. 
 ## Usage
